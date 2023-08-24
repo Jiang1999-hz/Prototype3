@@ -15,6 +15,8 @@ public class PlayerController : MonoBehaviour
     public AudioClip JumpSound;
     public AudioClip crashSound;
     private AudioSource playerAudio;
+    private bool checkDoubleJump = true;
+    private int points = 0;
     // Start is called before the first frame update
     void Start()
     {
@@ -31,19 +33,46 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Space) && isOnGround && !gameOver){
+        //jump and double jump
+        if(Input.GetKeyDown(KeyCode.Space) && (isOnGround || checkDoubleJump) && !gameOver){
             playerRb.AddForce(Vector3.up * jumpForce,ForceMode.Impulse);
-            isOnGround = false;
+            if(isOnGround){
+                isOnGround = false;
+            }
+            else if (!isOnGround && checkDoubleJump){
+                checkDoubleJump = false;
+            }
             dirtParticle.Stop();
             playerAnim.SetTrigger("Jump_trig");
             playerAudio.PlayOneShot(JumpSound,1.0f);
         }
+        //speed up when holding F
+        if(Input.GetKey(KeyCode.F)){
+            //animation speed up
+            playerAnim.speed = 10;
+        }else{
+            playerAnim.speed = 1;
+        }
+
+        //as long as the game is not over, points++
+        if(!gameOver && !Input.GetKey(KeyCode.F)){
+            points++;
+            Debug.Log(points);
+        }
+        else if (!gameOver && Input.GetKey(KeyCode.F))
+        {
+            points = points + 2;
+            Debug.Log(points);
+        }
+
+
     }
     //if player is not on the ground, should not be able to jump
     private void OnCollisionEnter(Collision collision) {
         if (collision.gameObject.CompareTag("Ground")){
             isOnGround = true;
             dirtParticle.Play();
+            checkDoubleJump = true;
         }
         else if (collision.gameObject.CompareTag("Obstacle")){
             gameOver = true;

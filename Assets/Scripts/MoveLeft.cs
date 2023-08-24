@@ -17,8 +17,13 @@ public class MoveLeft : MonoBehaviour
     void Update()
     {
         //when the game is not over keep going left
-        if(playerControllerScript.gameOver == false){
+        if(playerControllerScript.gameOver == false && !Input.GetKey(KeyCode.F)){
             transform.Translate(Vector3.left * speed * Time.deltaTime);
+        }
+        //speed up when holding F
+        else if (playerControllerScript.gameOver == false && Input.GetKey(KeyCode.F))
+        {
+            transform.Translate(Vector3.left * speed * 2 * Time.deltaTime);
         }
         //destroy the outbound obstacles
         if(transform.position.x < leftBound && gameObject.CompareTag("Obstacle")){
